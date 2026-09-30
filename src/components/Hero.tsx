@@ -388,7 +388,7 @@ export const Hero: React.FC<HeroProps> = ({ onTalk, onBook }) => {
   };
 
   return (
-    <section id="top" ref={k('root')} className={`relative isolate min-h-[100dvh] flex flex-col overflow-hidden bg-black ${LITE ? 'hero-lite' : ''}`}>
+    <section id="top" ref={k('root')} className={`relative isolate min-h-[100dvh] flex flex-col overflow-hidden bg-black ${LITE ? 'hero-lite' : ''} ${done ? 'hero-idle' : ''}`}>
       <div id="nav-sentinel" aria-hidden className="absolute top-0 h-px w-px" />
 
       <p className="sr-only">
@@ -510,7 +510,7 @@ export const Hero: React.FC<HeroProps> = ({ onTalk, onBook }) => {
                 <div className={`absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 ${GLOW.rimBox}`}>
                   <div
                     ref={k('hzGlow')}
-                    className={`absolute inset-0 mix-blend-screen ${GLOW.rim}`}
+                    className={`idle-rim absolute inset-0 mix-blend-screen ${GLOW.rim}`}
                     style={{ background: GLOW.rimFill }}
                   />
                 </div>
@@ -523,10 +523,21 @@ export const Hero: React.FC<HeroProps> = ({ onTalk, onBook }) => {
                 key={m}
                 ref={k(`ring${2 - i}`)}
                 aria-hidden
-                className="glass-lens absolute inset-0 m-auto rounded-full pointer-events-none"
-                style={{ width: `calc(var(--orb) * ${m})`, height: `calc(var(--orb) * ${m})` }}
+                className="glass-lens idle-lens absolute inset-0 m-auto rounded-full pointer-events-none"
+                style={{ width: `calc(var(--orb) * ${m})`, height: `calc(var(--orb) * ${m})`, animationDelay: `${(3 - i) * 0.3}s` }}
               />
             ))}
+
+            {/* Once the film ends: slow rings drift out of the orb as it breathes */}
+            {done &&
+              [0, 1, 2].map((i) => (
+                <span
+                  key={`idle${i}`}
+                  aria-hidden
+                  className="idle-ripple absolute inset-0 m-auto w-[var(--orb)] h-[var(--orb)] rounded-full pointer-events-none"
+                  style={{ animationDelay: `${i * 3}s` }}
+                />
+              ))}
 
             {/* Voice waves */}
             {[0, 1, 2].map((i) => (
@@ -570,7 +581,7 @@ export const Hero: React.FC<HeroProps> = ({ onTalk, onBook }) => {
             <span
               ref={k('orbGlow')}
               aria-hidden
-              className={`absolute inset-0 m-auto pointer-events-none mix-blend-screen ${GLOW.orb}`}
+              className={`idle-glow absolute inset-0 m-auto pointer-events-none mix-blend-screen ${GLOW.orb}`}
               style={{ background: GLOW.orbFill }}
             />
 
@@ -582,7 +593,7 @@ export const Hero: React.FC<HeroProps> = ({ onTalk, onBook }) => {
               tabIndex={done ? 0 : -1}
               aria-hidden={!done}
               aria-label="Talk to Rinxora live"
-              className={`absolute inset-0 m-auto w-[var(--orb)] h-[var(--orb)] rounded-full focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-pink-300 ${
+              className={`idle-orb absolute inset-0 m-auto w-[var(--orb)] h-[var(--orb)] rounded-full focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-pink-300 ${
                 done ? 'cursor-pointer' : 'pointer-events-none'
               }`}
             >

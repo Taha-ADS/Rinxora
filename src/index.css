@@ -423,3 +423,45 @@ svg.lucide { stroke-width: 1.4; }
 }
 .range:focus-visible { outline: none; }
 .range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px #000, 0 0 0 5px #FF9CC4; }
+
+/* Hero at rest: the orb breathes, slowly (one breath every 6s).
+   `scale` composes with the film's inline transform instead of replacing it,
+   and each start value matches the film's final frame, so it begins seamlessly. */
+@keyframes orb-breathe {
+  0%, 100% { scale: 1; }
+  50% { scale: 1.045; }
+}
+@keyframes lens-breathe {
+  0%, 100% { scale: 1; }
+  50% { scale: 1.03; }
+}
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.85; }
+}
+@keyframes rim-breathe {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.62; }
+}
+@keyframes orb-ripple {
+  0% { transform: scale(1); opacity: 0; }
+  10% { opacity: 0.5; }
+  100% { transform: scale(2.9); opacity: 0; }
+}
+.hero-idle .idle-orb { animation: orb-breathe 6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.hero-idle .idle-lens { animation: lens-breathe 6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.hero-idle .idle-glow { animation: glow-breathe 6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.hero-idle .idle-rim { animation: rim-breathe 6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.idle-ripple {
+  box-shadow:
+    0 0 0 1px rgba(255, 170, 205, 0.6),
+    0 0 28px -4px rgba(255, 95, 162, 0.5),
+    inset 0 0 22px -8px rgba(255, 120, 170, 0.45);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: orb-ripple 9s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-idle .idle-orb, .hero-idle .idle-lens, .hero-idle .idle-glow, .hero-idle .idle-rim { animation: none; }
+  .idle-ripple { display: none; }
+}
