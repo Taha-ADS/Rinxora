@@ -1,77 +1,148 @@
-import React, { useState, useEffect } from 'react';
-import { PhoneCall, Flame } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { track } from '../lib/analytics';
 
 interface NavbarProps {
-  onOpenSettings: () => void;
   onScrollToDemo: () => void;
-  hasCustomKey: boolean;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenSettings, onScrollToDemo, hasCustomKey }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
+const LINKS = [
+  { href: '#how', label: 'How it works' },
+  { href: '#capabilities', label: 'Capabilities' },
+  { href: '#voices', label: 'Voices' },
+  { href: '#pricing', label: 'Pricing' },
+  { href: '#faq', label: 'FAQ' },
+];
+
+export const Navbar: React.FC<NavbarProps> = ({ onScrollToDemo }) => {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const io = new IntersectionObserver(([e]) => setScrolled(!e.isIntersecting), { rootMargin: '-40px 0px 0px 0px' });
+    const sentinel = document.getElementById('nav-sentinel');
+    if (sentinel) io.observe(sentinel);
+    return () => io.disconnect();
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const tryLive = () => {
+    setOpen(false);
+    track('nav_try_live');
+    onScrollToDemo();
+  };
+
+  const bar = 'block absolute left-0 h-px w-5 bg-white transition-transform duration-500 ease-lux';
+
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-titanium-950/90 backdrop-blur-md border-b border-white/[0.08] py-3.5 shadow-2xl shadow-black/80'
-          : 'bg-transparent py-5 border-b border-transparent'
-      }`}
-    >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
-            <a href="#" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center shadow-inner group-hover:border-amber-400 transition-colors">
-                <Flame className="w-4 h-4 text-amber-400" />
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-display font-extrabold tracking-tight text-lg text-white">VOCALIS</span>
-                <span className="text-xs font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                  HVAC
-                </span>
-              </div>
-            </a>
+    <>
+      <header className="fixed top-0 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
+        <nav
+          aria-label="Primary"
+          className={`pointer-events-auto mt-4 sm:mt-6 flex items-center gap-2 sm:gap-6 rounded-full pl-4 pr-2 py-2 ring-1 backdrop-blur-2xl transition-[background-color,box-shadow] duration-700 ease-lux ${
+            scrolled
+              ? 'bg-titanium-950/70 ring-white/15 shadow-[0_20px_60px_-20px_rgba(124,58,237,0.5)]'
+              : 'bg-white/[0.04] ring-white/10'
+          }`}
+        >
+          <a href="#top" className="flex items-center gap-2.5 pr-1 sm:pr-2" aria-label="Rinxora home" translate="no">
+            <span className="orb-mini w-6 h-6 rounded-full ring-1 ring-white/30" />
+            <span className="font-semibold tracking-[0.22em] text-[13px] text-white">RINXORA</span>
+          </a>
 
-            {/* Live Operational Status Chip */}
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-titanium-900 border border-white/[0.08] text-sm text-titanium-300">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="text-emerald-400 font-medium">24/7 Dispatch Active</span>
-            </div>
-          </div>
+          <ul className="hidden md:flex items-center gap-1 text-sm text-titanium-300">
+            {LINKS.map((l) => (
+              <li key={l.href}>
+                <a
+                  href={l.href}
+                  className="px-3.5 py-2 rounded-full transition-colors duration-500 ease-lux hover:text-white hover:bg-white/[0.07]"
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
 
-          {/* Simple Clean Nav Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-titanium-300">
-            <a href="#live-demo" className="hover:text-white transition-colors">Live Demo</a>
-            <a href="#hvac-triage" className="hover:text-white transition-colors">Emergency Triage</a>
-            <a href="#roi-calculator" className="hover:text-white transition-colors">HVAC ROI</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-          </nav>
+          <button
+            onClick={tryLive}
+            className="btn-chrome hidden sm:inline-flex items-center rounded-full text-[#0B0A0F] text-sm font-semibold px-5 py-2.5 transition-[transform,box-shadow] duration-500 ease-lux active:scale-[0.97] cursor-pointer"
+          >
+            Try it live
+          </button>
 
-          {/* Right Action buttons */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onScrollToDemo}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-zinc-950 font-bold text-sm tracking-wide transition-all animate-cta-glow hover:scale-[1.03] active:scale-[0.97] flex items-center gap-2 shadow-lg shadow-amber-500/30 cursor-pointer"
-            >
-              <PhoneCall className="w-4 h-4 text-zinc-950" />
-              <span className="text-zinc-950 font-bold">Test Call</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            className="md:hidden relative w-11 h-11 rounded-full bg-white/[0.07] ring-1 ring-white/10 cursor-pointer"
+          >
+            <span className="absolute left-1/2 top-1/2 -ml-2.5 w-5 h-5">
+              <span className={`${bar} top-[6px] ${open ? 'translate-y-[3px] rotate-45' : ''}`} />
+              <span className={`${bar} top-[13px] ${open ? '-translate-y-[4px] -rotate-45' : ''}`} />
+            </span>
+          </button>
+        </nav>
+      </header>
+
+      {/* Screen-filling menu */}
+      <div
+        id="mobile-menu"
+        aria-hidden={!open}
+        inert={!open}
+        className={`fixed inset-0 z-30 md:hidden bg-titanium-950/85 backdrop-blur-3xl transition-opacity duration-700 ease-lux ${
+          open ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="min-h-[100dvh] flex flex-col justify-center px-8 pt-24 pb-12">
+          <ul className="space-y-1">
+            {LINKS.map((l, i) => (
+              <li key={l.href} className="overflow-hidden">
+                <a
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  style={{ transitionDelay: open ? `${100 + i * 60}ms` : '0ms' }}
+                  className={`block py-2.5 text-4xl font-semibold tracking-[-0.03em] text-white transition-[transform,opacity] duration-700 ease-lux ${
+                    open ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+                  }`}
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={tryLive}
+            style={{ transitionDelay: open ? '450ms' : '0ms' }}
+            className={`mt-10 self-start rounded-full bg-white text-titanium-950 font-semibold px-7 py-3.5 transition-[transform,opacity] duration-700 ease-lux cursor-pointer ${
+              open ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+            }`}
+          >
+            Try it live
+          </button>
+          <a
+            href="#book"
+            onClick={() => {
+              setOpen(false);
+              track('nav_book_demo');
+            }}
+            style={{ transitionDelay: open ? '510ms' : '0ms' }}
+            className={`ring-aura mt-3 self-start rounded-full text-white font-semibold px-7 py-3.5 transition-[transform,opacity] duration-700 ease-lux ${
+              open ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+            }`}
+          >
+            Book a demo
+          </a>
         </div>
       </div>
-    </header>
+    </>
   );
 };

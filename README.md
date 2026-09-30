@@ -67,15 +67,29 @@ npm run build
 
 ---
 
-## 📞 Retell AI Configuration (Optional)
+## ⚙️ Configuration
 
-To enable live microphone calls with your own Retell AI Agent:
-1. Click the **SDK Key** button in the interface.
-2. Enter your Retell **Public API Key** and your **Agent ID**.
-3. Save and click **Start Live Call**.
+Copy `.env.example` to `.env.local` and fill in what you use. Everything is public (it ships in the browser bundle).
 
----
+| Variable | What it does |
+| --- | --- |
+| `VITE_RETELL_PUBLIC_KEY`, `VITE_RETELL_AGENT_ID_*` | Live calls with your Retell agents. Without a key the console runs the built-in demo. Restrict the key to your domains in the Retell dashboard. |
+| `VITE_LEAD_ENDPOINT` | Where the “Book a demo” form posts, as JSON (Formspree, Web3Forms, a Zapier/Make webhook or your own API). |
+| `VITE_LEAD_ACCESS_KEY` | Only for services that expect a key in the body (Web3Forms `access_key`). |
+| `VITE_BOOKING_URL` | Calendly or Cal.com link offered after the form is sent, prefilled with the lead’s name and email. |
+| `VITE_CONTACT_EMAIL` | Shown in the footer and legal pages; the fallback when the form can’t be sent. |
+| `VITE_LEGAL_COMPANY`, `VITE_LEGAL_ADDRESS`, `VITE_LEGAL_JURISDICTION` | Filled into the Privacy Policy and Terms. |
+| `VITE_SITE_URL` | The public address, so share previews get an absolute image URL. |
+
+At least one of `VITE_LEAD_ENDPOINT`, `VITE_BOOKING_URL` or `VITE_CONTACT_EMAIL` must be set, or the demo form cannot reach you.
+
+## 🗂 Pages and content
+
+- `index.html` is the landing page; `privacy.html` and `terms.html` are the legal pages (text in `src/legal/content.tsx`, have it reviewed before launch).
+- The hero film’s script and timing are the constants at the top of `src/components/Hero.tsx`. In development, `?heroT=12` shows the film at 12 seconds.
+- Customer quotes go in `src/lib/proof.ts`; the section stays hidden until it has entries.
+- `public/horizon-glow.webp` is rendered from `design/horizon-glow.svg` (SVG filters are too slow to run live in Safari).
 
 ## 📄 License
 
-Proprietary © Vocalis / Rinxora Technologies. All rights reserved.
+Proprietary © Rinxora Technologies. All rights reserved.
