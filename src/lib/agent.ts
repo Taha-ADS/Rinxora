@@ -1,14 +1,8 @@
-// Live voice agent (Retell). Configure in .env.local, see .env.example.
-// A Retell *public* key is safe in the browser: restrict it to your domains in the Retell dashboard.
-const env = import.meta.env as Record<string, string | undefined>;
+// Keep the custom call console on the same public key and agent as the Retell widget in index.html.
+export const RETELL_PUBLIC_KEY = 'public_key_b9e2324cc17430bfd39a1';
 
-export const RETELL_PUBLIC_KEY = env.VITE_RETELL_PUBLIC_KEY ?? '';
-
-// One Retell agent per voice. Sarah falls back to the original agent so a single key is enough to go live.
 const AGENTS: Record<string, string> = {
-  sarah: env.VITE_RETELL_AGENT_ID_SARAH || env.VITE_RETELL_AGENT_ID || 'agent_c43073d7aac77bb4ea80e4ef6e',
-  marcus: env.VITE_RETELL_AGENT_ID_MARCUS || '',
-  aria: env.VITE_RETELL_AGENT_ID_ARIA || '',
+  sarah: 'agent_a8adab1b7c7ece61f1c7283bd7',
 };
 
 export const liveEnabled = Boolean(RETELL_PUBLIC_KEY);
@@ -59,6 +53,7 @@ export class LiveAgent {
   private connect(client: any, agentId: string, h: LiveHandlers) {
     this.session = client.createWebCall({
       agent_id: agentId,
+      agent_version: 0,
       hooks: {
         onStatus: (status: string) => {
           if (status === 'live') {

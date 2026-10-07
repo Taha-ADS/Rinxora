@@ -8,14 +8,12 @@ Powered by **Retell AI** (`retell-client-js-sdk`) with sub-400ms voice response,
 
 ## ⚡ Key Features
 
-- **Interactive Voice Testing Terminal**: Real-time voice simulation with dual modes:
-  - **Live WebRTC Mode**: Connects directly to Retell AI using client SDK and microphone stream.
-  - **Instant Interactive Voice Simulation**: Fully interactive client-side voice demo simulating HVAC emergency triage and call flows without requiring an API key.
+- **Live Sarah Calls**: The page embeds Retell's voice widget and the in-page console connects to the same Sarah agent using the client SDK.
 - **HVAC-Specific Dispatch Flows**:
   - **Gas & Carbon Monoxide Emergency**: Global override triggering immediate outdoor evacuation instructions and priority alerts.
   - **Active Ceiling Water Leak**: Drywall protection protocol bypassing standard windows to dispatch nearest on-call truck.
   - **Territory & Diagnostic Fee Guardrails**: $89 diagnostic fee credited 100% into approved repair with DFW metro coverage screening.
-- **Voice Customization & Cloning**: Multiple voice personas (Sarah, Marcus, custom brand clones) with full-duplex barge-in support.
+- **Voice Previews**: Visitors can preview voice styles; live calls use Sarah.
 - **HVAC Missed Revenue ROI Calculator**: Interactive calculator modeling lost revenue from after-hours missed furnace and AC calls.
 - **Business-Outcome Pricing Tiers**:
   - **Tier 1: After-Hours Capture** ($1,000 / month, up to 350 mins/mo)
@@ -71,9 +69,10 @@ npm run build
 
 Copy `.env.example` to `.env.local` and fill in what you use. Everything is public (it ships in the browser bundle).
 
+The Retell voice widget is configured in `index.html`. The in-page call console uses the same public key and agent ID from `src/lib/agent.ts`. Restrict the public key to your domains in the Retell dashboard.
+
 | Variable | What it does |
 | --- | --- |
-| `VITE_RETELL_PUBLIC_KEY`, `VITE_RETELL_AGENT_ID_*` | Live calls with your Retell agents. Without a key the console runs the built-in demo. Restrict the key to your domains in the Retell dashboard. |
 | `VITE_LEAD_ENDPOINT` | Where the “Book a demo” form posts, as JSON (Formspree, Web3Forms, a Zapier/Make webhook or your own API). |
 | `VITE_LEAD_ACCESS_KEY` | Only for services that expect a key in the body (Web3Forms `access_key`). |
 | `VITE_BOOKING_URL` | Calendly or Cal.com link offered after the form is sent, prefilled with the lead’s name and email. |

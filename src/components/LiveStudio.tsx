@@ -416,14 +416,10 @@ export const LiveStudio: React.FC<LiveStudioProps> = ({ onExploreEdgeCases }) =>
       onError: (err, wasLive) => {
         console.warn('[Rinxora] live agent error', err);
         if (wasLive) return finishLive();
-        // Could not connect (key, network or mic): fall back to the built-in demo so the visitor still gets a call.
+        // Keep failed live calls from silently switching to a different browser voice.
         agentRef.current.end();
-        liveCallRef.current = false;
-        setLiveCall(false);
-        setConnecting(false);
-        track('voice_live_fallback');
-        startDemo();
-        setNote('We could not reach the live line just now, so you are hearing Rinxora in demo mode.');
+        finishLive();
+        setNote('We could not reach Sarah right now. Please try again.');
       },
     });
   };
@@ -800,7 +796,7 @@ export const LiveStudio: React.FC<LiveStudioProps> = ({ onExploreEdgeCases }) =>
 
               {/* Conversation starters */}
               <div className="px-3 sm:px-5 pb-4">
-                {liveEnabled && !note ? (
+                {liveEnabled ? (
                   <p className="text-center text-xs text-titanium-400 text-pretty">
                     <span className="uppercase tracking-[0.18em] text-titanium-500 mr-2">Try saying</span>
                     “My AC stopped working” · “How much is a visit?” · “Can you come today?”
@@ -824,7 +820,7 @@ export const LiveStudio: React.FC<LiveStudioProps> = ({ onExploreEdgeCases }) =>
               {/* Transcript + typing, tucked away: this is a voice call, not a chat */}
               <details className="group border-t border-white/[0.08]" onToggle={(e) => (e.currentTarget as HTMLDetailsElement).open && track('transcript_opened')}>
                 <summary className="flex items-center justify-between px-5 py-3.5 text-sm text-titanium-300 cursor-pointer list-none hover:text-white transition-colors duration-500 ease-lux [&::-webkit-details-marker]:hidden">
-                  <span>{liveEnabled && !note ? 'Transcript' : 'Transcript & type instead'}</span>
+                  <span>{liveEnabled ? 'Transcript' : 'Transcript & type instead'}</span>
                   <ChevronDown className="w-4 h-4 transition-transform duration-500 ease-lux group-open:rotate-180" aria-hidden="true" />
                 </summary>
                 <div className="px-4 pb-4">
@@ -846,7 +842,7 @@ export const LiveStudio: React.FC<LiveStudioProps> = ({ onExploreEdgeCases }) =>
                       ))
                     )}
                   </div>
-                  {(!liveEnabled || note) && (
+                  {!liveEnabled && (
                   <form onSubmit={submitDraft} className="mt-3 flex items-center gap-2 rounded-full bg-white/[0.06] ring-1 ring-white/10 focus-within:ring-[#FF5FA2]/60 pl-4 pr-1.5 py-1.5 transition-shadow duration-500 ease-lux">
                     <input
                       value={draft}
